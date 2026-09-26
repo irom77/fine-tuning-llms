@@ -16,6 +16,7 @@ Thumbs.db
 
 # Generated lab state and model artifacts
 markers/
+backups/
 lora_output/
 lora_adapter/
 lora_adapter.backup/

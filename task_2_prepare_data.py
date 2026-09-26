@@ -4,14 +4,29 @@ Task 2: Prepare Training Data
 Create and validate training data for fine-tuning.
 """
 
-import os
 import json
+import shutil
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent
 DATA_DIR = REPO_ROOT / "data"
 MARKERS_DIR = REPO_ROOT / "markers"
+BACKUPS_DIR = REPO_ROOT / "backups" / "task2"
+
+
+def unique_timestamped_path(directory, prefix, suffix):
+    """Return a new timestamped path without overwriting an existing backup."""
+    directory.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    candidate = directory / f"{prefix}_{timestamp}{suffix}"
+    counter = 1
+    while candidate.exists():
+        candidate = directory / f"{prefix}_{timestamp}_{counter}{suffix}"
+        counter += 1
+    return candidate
 
 
 def main():
@@ -48,7 +63,7 @@ def main():
     data_path = DATA_DIR / "training_data.jsonl"
     examples = []
     
-    with open(data_path, "r") as f:
+    with data_path.open("r", encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 examples.append(json.loads(line))
@@ -127,17 +142,33 @@ def main():
     
     print("\n[STEP 6] Adding your example to training data...")
     print("-" * 65)
-    
+
+    example_already_exists = new_example in examples
+    example_added = False
+
     if validation_passed:
-        with open(data_path, "a") as f:
-            f.write(json.dumps(new_example) + "\n")
-        
-        # Verify it was added
-        with open(data_path, "r") as f:
-            new_count = sum(1 for line in f if line.strip())
-        
-        print(f"  ✓ Example added! Total examples: {new_count}")
+        if example_already_exists:
+            new_count = len(examples)
+            print("  ~ Example already exists; no duplicate was added")
+        else:
+            backup_path = unique_timestamped_path(BACKUPS_DIR, "training_data", ".jsonl")
+            shutil.copy2(data_path, backup_path)
+
+            updated_examples = examples + [new_example]
+            with tempfile.NamedTemporaryFile(
+                "w", encoding="utf-8", dir=DATA_DIR, delete=False
+            ) as temp_file:
+                for example in updated_examples:
+                    temp_file.write(json.dumps(example) + "\n")
+                temp_path = Path(temp_file.name)
+            temp_path.replace(data_path)
+
+            new_count = len(updated_examples)
+            example_added = True
+            print(f"  Backup saved to: {backup_path}")
+            print(f"  ✓ Example added! Total examples: {new_count}")
     else:
+        new_count = len(examples)
         print("  ✗ Fix validation errors first")
     
     # Summary
@@ -145,7 +176,7 @@ def main():
     print("TRAINING DATA READY")
     print("-" * 65)
     print(f"  File: {data_path}")
-    print(f"  Examples: {len(examples) + (1 if validation_passed else 0)}")
+    print(f"  Examples: {new_count}")
     print("  Format: JSONL (one JSON per line)")
     print("\n  KEY INSIGHT:")
     print("  Quality training data is crucial for fine-tuning.")
@@ -155,7 +186,7 @@ def main():
     # Create marker file
     if validation_passed:
         MARKERS_DIR.mkdir(exist_ok=True)
-        with open(MARKERS_DIR / "task2_complete.txt", "w") as f:
+        with (MARKERS_DIR / "task2_complete.txt").open("w", encoding="utf-8") as f:
             f.write("PREPARE_DATA_COMPLETE")
         
         print("\nTask 2 Complete!")

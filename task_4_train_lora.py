@@ -4,8 +4,9 @@ Task 4: Train with LoRA
 Actually fine-tune the model using LoRA.
 """
 
-import os
 import json
+import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 from transformers import (
     AutoTokenizer, 
@@ -26,6 +27,32 @@ DATA_DIR = REPO_ROOT / "data"
 MARKERS_DIR = REPO_ROOT / "markers"
 OUTPUT_DIR = REPO_ROOT / "lora_output"
 ADAPTER_DIR = REPO_ROOT / "lora_adapter"
+BACKUPS_DIR = REPO_ROOT / "backups" / "task4"
+
+
+def unique_backup_directory():
+    """Create a unique directory for preserving a previous training run."""
+    BACKUPS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_dir = BACKUPS_DIR / f"run_{timestamp}"
+    counter = 1
+    while backup_dir.exists():
+        backup_dir = BACKUPS_DIR / f"run_{timestamp}_{counter}"
+        counter += 1
+    backup_dir.mkdir()
+    return backup_dir
+
+
+def backup_existing_outputs():
+    """Move prior Trainer outputs aside before creating a new run."""
+    existing_paths = [path for path in (OUTPUT_DIR, ADAPTER_DIR) if path.exists()]
+    if not existing_paths:
+        return None
+
+    backup_dir = unique_backup_directory()
+    for path in existing_paths:
+        shutil.move(str(path), str(backup_dir / path.name))
+    return backup_dir
 
 
 def main():
@@ -138,6 +165,10 @@ def main():
     print("-" * 65)
     print("  Watch the loss decrease as the model learns!")
     print("")
+
+    previous_outputs_backup = backup_existing_outputs()
+    if previous_outputs_backup:
+        print(f"  Previous outputs backed up to: {previous_outputs_backup}")
     
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
     
@@ -184,7 +215,7 @@ def main():
     
     # Create marker
     MARKERS_DIR.mkdir(exist_ok=True)
-    with open(MARKERS_DIR / "task4_complete.txt", "w") as f:
+    with (MARKERS_DIR / "task4_complete.txt").open("w", encoding="utf-8") as f:
         f.write(f"TRAIN_LORA_COMPLETE\nloss={result.training_loss:.4f}")
     
     print("\nTask 4 Complete!")

@@ -75,6 +75,13 @@ parameter count, and total parameter count for use by the next task.
 CONFIGURE_LORA_COMPLETE
 ```
 
+## Rerun safety
+
+If `markers/lora_config.json` already exists, Task 3 preserves it in a
+timestamped file under `backups/task3/` before saving the new configuration.
+The model configuration can therefore be regenerated without losing the
+previous metadata.
+
 ## Environment-path fix
 
 The original lab script wrote its outputs to `/root/markers`, which is not a
@@ -100,4 +107,3 @@ LoRA allows the lab to adapt the model while training only `0.34%` of its
 parameters. This makes the configuration suitable for experimentation on
 consumer hardware, although the later training task will still require
 additional CPU time and memory.
-

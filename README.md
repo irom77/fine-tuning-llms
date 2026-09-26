@@ -151,8 +151,7 @@ activated.
 
 ### 1. Demonstrate prompt-engineering jailbreaks
 
-Open `task_1_prompt_jailbreak.py` and complete its system-prompt and jailbreak
-prompt TODOs. Then run:
+Run the prompt-jailbreak task:
 
 ```bash
 python task_1_prompt_jailbreak.py
@@ -160,6 +159,7 @@ python task_1_prompt_jailbreak.py
 
 This loads the base model, tests a normal TacoBot request, and tries several
 jailbreak prompts. It reports whether each response remained valid JSON.
+The task only refreshes its completion marker, so it can be rerun safely.
 
 Detailed results and interpretation are documented in
 [`docs/task_1_results.md`](docs/task_1_results.md).
@@ -172,14 +172,11 @@ Run the prepared-data task:
 python task_2_prepare_data.py
 ```
 
-The script validates a new conversation example and appends it to
-`data/training_data.jsonl` when the example is valid. It writes a completion
-marker to `markers/task2_complete.txt`. Make a backup first if
-you want to preserve the original dataset:
-
-```bash
-cp data/training_data.jsonl data/training_data.jsonl.bak
-```
+The script validates a new conversation example and adds it to
+`data/training_data.jsonl` when the example is valid. It skips the example if
+it already exists, creates a timestamped backup under `backups/task2/` before
+an actual modification, and writes a completion marker to
+`markers/task2_complete.txt`.
 
 Each JSONL record contains `system`, `user`, and `assistant` messages. The
 assistant response should be valid JSON with `response` and `category` keys.
@@ -198,7 +195,8 @@ python task_3_configure_lora.py
 The default exercise hints use rank `8`, alpha `16`, and attention projection
 modules such as `q_proj` and `v_proj`. The script reports trainable parameter
 counts and writes configuration metadata to
-`markers/lora_config.json`. It also writes
+`markers/lora_config.json`. If an older configuration exists, it is preserved
+under `backups/task3/` before replacement. The script also writes
 `markers/task3_complete.txt` when successful.
 
 Detailed results are documented in
@@ -215,7 +213,10 @@ python task_4_train_lora.py
 The script tokenizes the training dataset, trains a LoRA adapter for 50 steps,
 and saves the adapter to `lora_adapter/`. The exercise is configured for a
 small model and a short run, but CPU training can still take several minutes.
-It also writes `markers/task4_complete.txt` when successful.
+Before training, any existing `lora_output/` and `lora_adapter/` directories
+are moved into a timestamped folder under `backups/task4/`. This makes repeat
+runs safe while retaining earlier results. The task also writes
+`markers/task4_complete.txt` when successful.
 
 Detailed results are documented in
 [`docs/task_4_results.md`](docs/task_4_results.md).
@@ -265,6 +266,9 @@ Depending on the tasks completed, the scripts create:
 - `lora_output/` for Trainer output
 - `lora_adapter/` for the trained LoRA adapter
 - `results/task5/` for timestamped evaluation reports
+- `backups/task2/` for prior training-data files
+- `backups/task3/` for prior LoRA configurations
+- `backups/task4/` for prior training outputs and adapters
 - `data/backups/task6/` for timestamped preference-data backups
 
 If you change the output paths to local project directories, update the

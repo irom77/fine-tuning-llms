@@ -127,8 +127,10 @@ cd /home/irom/fine-tuning-llms
 .venv/bin/python task_4_train_lora.py
 ```
 
-CPU training is functional but slower than CUDA training. Re-running the task
-will overwrite the adapter output with the new run's weights.
+CPU training is functional but slower than CUDA training. Before each rerun,
+existing `lora_output/` and `lora_adapter/` directories are moved into a
+timestamped folder under `backups/task4/`, so earlier weights and Trainer
+outputs are preserved.
 
 ## Key takeaway
 

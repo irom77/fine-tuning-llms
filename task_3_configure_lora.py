@@ -4,7 +4,9 @@ Task 3: Configure and Apply LoRA
 Set up LoRA configuration and apply it to the model.
 """
 
-import os
+import json
+import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import LoraConfig, get_peft_model, TaskType
@@ -13,6 +15,19 @@ import torch
 
 REPO_ROOT = Path(__file__).resolve().parent
 MARKERS_DIR = REPO_ROOT / "markers"
+BACKUPS_DIR = REPO_ROOT / "backups" / "task3"
+
+
+def unique_timestamped_path(directory, prefix, suffix):
+    """Return a new timestamped path without overwriting an existing backup."""
+    directory.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    candidate = directory / f"{prefix}_{timestamp}{suffix}"
+    counter = 1
+    while candidate.exists():
+        candidate = directory / f"{prefix}_{timestamp}_{counter}{suffix}"
+        counter += 1
+    return candidate
 
 
 def main():
@@ -126,10 +141,14 @@ def main():
         "total_params": total_params,
     }
     
-    import json
     MARKERS_DIR.mkdir(exist_ok=True)
     config_path = MARKERS_DIR / "lora_config.json"
-    with open(config_path, "w") as f:
+    if config_path.exists():
+        backup_path = unique_timestamped_path(BACKUPS_DIR, "lora_config", ".json")
+        shutil.copy2(config_path, backup_path)
+        print(f"  Previous configuration backed up to {backup_path}")
+
+    with config_path.open("w", encoding="utf-8") as f:
         json.dump(config_info, f, indent=2)
 
     print(f"  Configuration saved to {config_path}")
@@ -147,7 +166,7 @@ def main():
     print("=" * 65)
     
     # Create marker file
-    with open(MARKERS_DIR / "task3_complete.txt", "w") as f:
+    with (MARKERS_DIR / "task3_complete.txt").open("w", encoding="utf-8") as f:
         f.write("CONFIGURE_LORA_COMPLETE")
     
     print("\nTask 3 Complete!")

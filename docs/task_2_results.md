@@ -95,15 +95,12 @@ The marker contains:
 PREPARE_DATA_COMPLETE
 ```
 
-## Important rerun note
+## Rerun safety
 
-The current script appends the example each time it runs. Re-running it will
-add another copy of the combo-deals example. Back up the dataset before
-experimentation if the original data must be preserved:
-
-```bash
-cp data/training_data.jsonl data/training_data.jsonl.bak
-```
+The task checks whether the combo-deals example already exists before writing.
+If it is new, the existing JSONL file is copied to a timestamped path under
+`backups/task2/` and the updated file is written atomically. Re-running the
+task therefore does not add another copy of the same example.
 
 ## What the result shows
 
@@ -111,4 +108,3 @@ Fine-tuning data must be structurally consistent and contain high-quality
 target responses. The model learns from the assistant content, so malformed
 JSON or inconsistent categories would teach behavior that conflicts with the
 TacoBot requirements.
-

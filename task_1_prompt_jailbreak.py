@@ -4,7 +4,6 @@ Task 1: The Prompt Engineering Problem
 Demonstrate why prompt engineering is vulnerable to jailbreaks.
 """
 
-import os
 import json
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -61,8 +60,6 @@ def main():
     print("  Model loaded!")
     
     # Define system prompt
-    # TODO 1: Create a system prompt for the taco agent
-    # Hint: Tell the model to always respond in JSON and stay in character
     system_prompt = (
         "You are TacoBot, a friendly taco restaurant assistant. "
         "You MUST always respond in valid JSON format with keys "
@@ -99,15 +96,12 @@ def main():
     with open(DATA_DIR / "jailbreak_prompts.json", "r") as f:
         jailbreaks = json.load(f)
     
-    # TODO 2: Test jailbreak prompts
-    # Hint: Iterate through jailbreak prompts and see if agent breaks
     jailbreak_results = []
     
     for i, jailbreak in enumerate(jailbreaks[:3]):  # Test first 3
         attack_name = jailbreak["name"]
         attack_prompt = jailbreak["prompt"]
         
-        # TODO 2: Create the prompt with the jailbreak attempt
         prompt = create_prompt_engineered_agent(system_prompt, attack_prompt)
         
         inputs = tokenizer(prompt, return_tensors="pt")
@@ -158,7 +152,7 @@ def main():
     
     # Create marker file
     MARKERS_DIR.mkdir(exist_ok=True)
-    with open(MARKERS_DIR / "task1_complete.txt", "w") as f:
+    with (MARKERS_DIR / "task1_complete.txt").open("w", encoding="utf-8") as f:
         f.write("PROMPT_JAILBREAK_COMPLETE")
     
     print("\nTask 1 Complete!")
