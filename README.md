@@ -40,6 +40,7 @@ This lab is based on the KodeKloud YouTube Labs course:
 ├── task_4_train_lora.py
 ├── task_5_test_agent.py
 ├── task_6_create_dpo_data.py
+├── run_all_tasks.py
 └── README.legacy.md              # Previous documentation
 ```
 
@@ -148,6 +149,28 @@ For example, the data references should resolve to:
 
 Run every command from the repository root with the virtual environment
 activated.
+
+### Run all tasks automatically
+
+To reset generated run state and execute environment verification plus Tasks
+1–6 in sequence, run:
+
+```bash
+python run_all_tasks.py
+```
+
+The script automatically creates `.venv` if needed, installs the required
+packages, and relaunches itself with the virtual-environment Python. On a
+machine without NVIDIA tooling it installs the CPU-only PyTorch wheel; a
+CUDA-capable setup uses the standard PyTorch package. If the environment is
+already ready, setup is skipped.
+
+The orchestrator removes old markers, LoRA outputs, the adapter, and Task 5
+reports before starting. It moves them into a timestamped backup under
+`backups/all_tasks/`, so the reset is recoverable. Source datasets and older
+backups are retained. The pipeline stops immediately if a task returns an
+error or fails to create its expected completion marker, and reports total
+elapsed time when it finishes or stops.
 
 ### 1. Demonstrate prompt-engineering jailbreaks
 
