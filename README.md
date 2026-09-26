@@ -8,6 +8,14 @@ The example project is **TacoBot**, a taco-restaurant drive-thru assistant.
 The lab explores how to make TacoBot stay on topic, respond consistently, and
 resist simple jailbreak attempts.
 
+## Source
+
+This lab is based on the KodeKloud YouTube Labs course:
+
+[Fine-tuning LLMs](https://learn.kodekloud.com/learn/courses/youtube-labs-fine-tuning-llms)
+
+[![Watch the Fine-tuning LLMs lab on YouTube](https://img.youtube.com/vi/o9jz04bIW0E/maxresdefault.jpg)](https://www.youtube.com/watch?v=o9jz04bIW0E&t=2s)
+
 ## What you will learn
 
 - Why system prompts alone do not reliably control a model
@@ -290,12 +298,6 @@ still require memory.
 Some later scripts still use absolute paths from the original lab container.
 Replace those references with paths relative to this repository, as described
 in the Important current-state note above.
-
-## Source
-
-This lab is based on the KodeKloud YouTube Labs course:
-
-[Fine-tuning LLMs](https://learn.kodekloud.com/learn/courses/youtube-labs-fine-tuning-llms)
 
 ## License and data note
 
