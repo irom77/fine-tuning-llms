@@ -1,0 +1,31 @@
+# Local Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Local editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Generated lab state and model artifacts
+markers/
+lora_output/
+lora_adapter/
+lora_adapter.backup/
+results/
+
+# DPO data backups created by rerunning Task 6
+data/backups/
+
+# Local logs and environment files
+*.log
+.env
+.env.*
+!.env.example
