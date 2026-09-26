@@ -47,6 +47,10 @@ This lab is based on the KodeKloud YouTube Labs course:
 The scripts use `HuggingFaceTB/SmolLM2-135M-Instruct` and download the model
 from Hugging Face on first use.
 
+For a beginner-friendly explanation of manual prompting, model files, local
+cache locations, LoRA adapter files, and the path from prompt to response, see
+[`docs/manual_huggingface_model_guide.md`](docs/manual_huggingface_model_guide.md).
+
 ## Requirements
 
 - Python 3.10 or newer
